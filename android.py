@@ -21,21 +21,25 @@ def findme():
 
 while True:
     time.sleep(5)
-    messages = sms.readSMS()
-    for message in messages:
-        data = {
-            'body': message['body'],
-            'message_id': message['_id'],
-            'type': message['type']
-        }
-        if len(received_sms.getByQuery(data)) > 0:
-            continue
-        else:
-            body = message['body'].split(' ')
-            if body[0] == 'FINDME' and message['type'] == 'inbox':
-                received_sms.add(data)
-                findme()
-            if body[0] == 'MISSING' and message['type'] == 'inbox':
-                os.system('')
+    try:
+        messages = sms.readSMS()
+        for message in messages:
+            data = {
+                'body': message['body'],
+                'message_id': message['_id'],
+                'type': message['type']
+            }
+            if len(received_sms.getByQuery(data)) > 0:
+                continue
             else:
-                received_sms.add(data)
+                body = message['body'].split(' ')
+                if body[0] == 'FINDME' and message['type'] == 'inbox':
+                    received_sms.add(data)
+                    findme()
+                if body[0] == 'MISSING' and message['type'] == 'inbox':
+                    os.system('termux-wallpaper -f missing_wallpaper.png -l')
+                else:
+                    received_sms.add(data)
+    except Exception as e:
+        file = open('logs', 'w')
+        file.write(str(e) + '\n')
